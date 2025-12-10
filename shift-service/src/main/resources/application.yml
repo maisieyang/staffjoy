@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: shift-service
+
+  # 数据源配置
+  datasource:
+    url: jdbc:h2:mem:shiftdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # H2控制台配置
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# 服务器配置
+server:
+  port: 8082
+
+# 日志配置
+logging:
+  level:
+    com.staffjoy.shift: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+

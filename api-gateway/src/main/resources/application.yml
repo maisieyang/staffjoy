@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: api-gateway
+
+  # Spring Cloud Gateway 配置
+  cloud:
+    gateway:
+      routes:
+        # 用户服务路由
+        - id: user-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - StripPrefix=0  # 不剥离前缀，保留 /api/users
+
+        # 排班服务路由 - 公司
+        - id: shift-service-companies
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/companies/**
+          filters:
+            - StripPrefix=0
+
+        # 排班服务路由 - 排班
+        - id: shift-service-shifts
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/shifts/**
+          filters:
+            - StripPrefix=0
+
+      # 全局 CORS 配置
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: false
+
+# 服务器配置
+server:
+  port: 8080
+
+# Actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+
+# 日志配置
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web: INFO
+
