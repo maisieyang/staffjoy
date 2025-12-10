@@ -3,15 +3,26 @@ spring:
     name: staffjoy-app
 
   # 数据源配置
+  # 开发环境：使用 H2 内存数据库（无需安装，快速启动）
+  # 生产环境：切换到 MySQL（取消注释下面的配置，注释掉 H2 配置）
   datasource:
+    # H2 配置（开发环境）
     url: jdbc:h2:mem:staffjoydb
     driver-class-name: org.h2.Driver
     username: sa
     password:
+    
+    # MySQL 配置（生产环境，需要先安装 MySQL）
+    # url: jdbc:mysql://localhost:3306/staffjoy?useSSL=false&serverTimezone=UTC&characterEncoding=utf8
+    # driver-class-name: com.mysql.cj.jdbc.Driver
+    # username: root
+    # password: your_password
 
   # JPA配置
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    # 根据数据源自动选择方言（H2 或 MySQL）
+    # database-platform: org.hibernate.dialect.H2Dialect  # H2
+    # database-platform: org.hibernate.dialect.MySQLDialect  # MySQL
     hibernate:
       ddl-auto: update  # 自动创建/更新表结构
     show-sql: true  # 显示SQL语句（开发环境）
@@ -19,7 +30,7 @@ spring:
       hibernate:
         format_sql: true  # 格式化SQL输出
 
-  # H2控制台配置（方便查看数据库）
+  # H2控制台配置（方便查看数据库，仅开发环境）
   h2:
     console:
       enabled: true

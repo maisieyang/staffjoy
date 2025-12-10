@@ -45,6 +45,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- MySQL Database (生产环境使用) -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- Spring Boot DevTools (热重载) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

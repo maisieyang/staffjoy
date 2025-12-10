@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 用户实体类
@@ -39,6 +41,20 @@ public class User {
 
     @Column(name = "phone_number")
     private String phoneNumber;
+
+    /**
+     * 多对一关系：多个用户属于一个公司
+     * 如果用户不属于任何公司，company 可以为 null
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    private Company company;
+
+    /**
+     * 一对多关系：一个用户有多个排班
+     */
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Shift> shifts = new ArrayList<>();
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

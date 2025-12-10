@@ -10,11 +10,11 @@
 - [x] 使用 H2 内存数据库
 - [x] RESTful API 设计
 
-### 阶段2：数据库和业务逻辑（待完成）
-- [ ] 添加 MySQL 数据库支持
-- [ ] 实现排班（Shift）功能
-- [ ] 实现公司（Company）功能
-- [ ] 添加数据关联关系
+### 阶段2：数据库和业务逻辑 ✅
+- [x] 添加 MySQL 数据库支持
+- [x] 实现排班（Shift）功能
+- [x] 实现公司（Company）功能
+- [x] 添加数据关联关系
 
 ### 阶段3：微服务拆分（待完成）
 - [ ] 拆分为用户服务（User Service）
@@ -65,6 +65,111 @@ java -jar target/staffjoy-app-1.0.0-SNAPSHOT.jar
   - 密码: (留空)
 
 ## 📡 API 端点
+
+### 公司管理 API
+
+#### 获取所有公司
+```bash
+GET http://localhost:8080/api/companies
+```
+
+#### 获取指定公司
+```bash
+GET http://localhost:8080/api/companies/{id}
+```
+
+#### 创建公司
+```bash
+POST http://localhost:8080/api/companies
+Content-Type: application/json
+
+{
+  "name": "示例公司",
+  "legalName": "示例科技有限公司",
+  "description": "这是一家示例公司",
+  "website": "https://example.com",
+  "phoneNumber": "400-123-4567",
+  "address": "北京市朝阳区示例街道123号"
+}
+```
+
+#### 更新公司
+```bash
+PUT http://localhost:8080/api/companies/{id}
+Content-Type: application/json
+
+{
+  "name": "更新后的公司名称",
+  "description": "更新后的描述"
+}
+```
+
+#### 删除公司
+```bash
+DELETE http://localhost:8080/api/companies/{id}
+```
+
+### 排班管理 API
+
+#### 获取所有排班
+```bash
+GET http://localhost:8080/api/shifts
+```
+
+#### 获取指定排班
+```bash
+GET http://localhost:8080/api/shifts/{id}
+```
+
+#### 获取指定用户的所有排班
+```bash
+GET http://localhost:8080/api/shifts/user/{userId}
+```
+
+#### 获取指定公司的所有排班
+```bash
+GET http://localhost:8080/api/shifts/company/{companyId}
+```
+
+#### 获取指定时间范围内的排班
+```bash
+GET http://localhost:8080/api/shifts/between?startTime=2024-01-01T00:00:00&stopTime=2024-01-31T23:59:59
+```
+
+#### 创建排班
+```bash
+POST http://localhost:8080/api/shifts
+Content-Type: application/json
+
+{
+  "user": {
+    "id": 1
+  },
+  "company": {
+    "id": 1
+  },
+  "startTime": "2024-01-15T09:00:00",
+  "stopTime": "2024-01-15T17:00:00",
+  "published": false
+}
+```
+
+#### 更新排班
+```bash
+PUT http://localhost:8080/api/shifts/{id}
+Content-Type: application/json
+
+{
+  "startTime": "2024-01-15T10:00:00",
+  "stopTime": "2024-01-15T18:00:00",
+  "published": true
+}
+```
+
+#### 删除排班
+```bash
+DELETE http://localhost:8080/api/shifts/{id}
+```
 
 ### 用户管理 API
 
@@ -143,13 +248,21 @@ staffjoy-app/
 │   │   ├── java/com/staffjoy/
 │   │   │   ├── StaffjoyApplication.java    # 主应用类
 │   │   │   ├── controller/                 # REST 控制器
-│   │   │   │   └── UserController.java
+│   │   │   │   ├── UserController.java
+│   │   │   │   ├── CompanyController.java
+│   │   │   │   └── ShiftController.java
 │   │   │   ├── service/                    # 业务逻辑层
-│   │   │   │   └── UserService.java
+│   │   │   │   ├── UserService.java
+│   │   │   │   ├── CompanyService.java
+│   │   │   │   └── ShiftService.java
 │   │   │   ├── repository/                 # 数据访问层
-│   │   │   │   └── UserRepository.java
+│   │   │   │   ├── UserRepository.java
+│   │   │   │   ├── CompanyRepository.java
+│   │   │   │   └── ShiftRepository.java
 │   │   │   └── model/                      # 实体类
-│   │   │       └── User.java
+│   │   │       ├── User.java
+│   │   │       ├── Company.java
+│   │   │       └── Shift.java
 │   │   └── resources/
 │   │       └── application.yml             # 配置文件
 │   └── test/                               # 测试代码
@@ -159,7 +272,7 @@ staffjoy-app/
 
 ## 🎯 当前阶段说明
 
-**阶段1：基础单体应用**
+**阶段1：基础单体应用** ✅
 
 我们已经完成了：
 1. ✅ Spring Boot 项目基础结构
@@ -169,6 +282,18 @@ staffjoy-app/
 5. ✅ REST API 控制器（Controller）
 6. ✅ H2 内存数据库配置
 
+**阶段2：数据库和业务逻辑** ✅
+
+我们已经完成了：
+1. ✅ 添加 MySQL 数据库支持（pom.xml 和 application.yml 已配置）
+2. ✅ 公司实体（Company）及完整的 CRUD 功能
+3. ✅ 排班实体（Shift）及完整的 CRUD 功能
+4. ✅ 实体间的关联关系：
+   - User ↔ Company（多对一：多个用户属于一个公司）
+   - User ↔ Shift（一对多：一个用户有多个排班）
+   - Company ↔ Shift（一对多：一个公司有多个排班）
+5. ✅ 复杂的查询功能（按用户、公司、时间范围查询排班）
+
 **核心概念学习：**
 - **@Entity**: JPA 实体注解，映射数据库表
 - **@Repository**: 数据访问层注解
@@ -176,14 +301,16 @@ staffjoy-app/
 - **@RestController**: REST API 控制器注解
 - **JpaRepository**: Spring Data JPA 提供的接口，自动实现 CRUD 操作
 - **依赖注入**: 使用 @Autowired 注入依赖
+- **@ManyToOne / @OneToMany**: JPA 关联关系注解
+- **@JoinColumn**: 指定外键列名
+- **级联操作**: CascadeType.ALL 实现级联保存和删除
 
 ## 📖 下一步学习
 
-完成阶段1后，我们将进入阶段2：
-- 添加更多业务实体（Company, Shift, Schedule）
-- 实现实体间的关联关系
-- 添加更复杂的业务逻辑
-- 切换到 MySQL 数据库
+完成阶段2后，我们将进入阶段3：
+- 微服务拆分（用户服务、排班服务）
+- 创建 API 网关
+- 服务间通信
 
 ## 🤝 学习建议
 
