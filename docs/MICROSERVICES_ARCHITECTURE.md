@@ -386,3 +386,4 @@ curl http://localhost:8082/api/companies
 - ✅ 故障隔离，一个服务的问题不影响其他服务
 - ✅ 技术栈可以不同（虽然这里都用 Spring Boot）
 
+
