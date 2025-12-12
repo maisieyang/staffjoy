@@ -1,0 +1,11 @@
+# Bootstrap 配置文件（优先于 application.yml 加载）
+# 用于配置 Config Client，连接到 Config Server
+
+spring:
+  cloud:
+    config:
+      enabled: false  # 默认禁用，如需使用 Config Server，设置为 true
+      name: shift-service  # 配置文件名（对应 config-server 中的 shift-service.yml）
+      uri: http://localhost:8888  # Config Server 地址
+      fail-fast: false  # 如果 Config Server 不可用，使用本地配置
+

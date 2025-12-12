@@ -11,30 +11,18 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>api-gateway</artifactId>
-    <name>API Gateway</name>
-    <description>API 网关 - 统一入口，路由到各个微服务</description>
+    <artifactId>eureka-server</artifactId>
+    <name>Eureka Server</name>
+    <description>Eureka 服务发现中心</description>
 
     <dependencies>
-        <!-- Spring Cloud Gateway -->
+        <!-- Spring Cloud Netflix Eureka Server -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-gateway</artifactId>
+            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
         </dependency>
 
-        <!-- Spring Cloud Netflix Eureka Client -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>
-
-        <!-- Spring Cloud Config Client (可选，用于从 Config Server 获取配置) -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
-        </dependency>
-
-        <!-- Spring Boot Actuator (健康检查) -->
+        <!-- Spring Boot Actuator -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>

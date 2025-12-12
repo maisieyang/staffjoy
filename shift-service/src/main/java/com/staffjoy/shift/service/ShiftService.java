@@ -1,5 +1,6 @@
 package com.staffjoy.shift.service;
 
+import com.staffjoy.shift.client.UserServiceClient;
 import com.staffjoy.shift.model.Company;
 import com.staffjoy.shift.model.Shift;
 import com.staffjoy.shift.repository.CompanyRepository;
@@ -14,8 +15,7 @@ import java.util.Optional;
 
 /**
  * 排班业务逻辑层
- * 注意：在微服务架构中，不能直接验证 User 是否存在
- * 需要通过服务间通信（如 Feign）来验证，这里先简化处理
+ * 使用 Feign Client 进行服务间通信，验证用户是否存在
  */
 @Service
 @Transactional
@@ -23,12 +23,15 @@ public class ShiftService {
 
     private final ShiftRepository shiftRepository;
     private final CompanyRepository companyRepository;
+    private final UserServiceClient userServiceClient;
 
     @Autowired
     public ShiftService(ShiftRepository shiftRepository,
-                       CompanyRepository companyRepository) {
+                       CompanyRepository companyRepository,
+                       UserServiceClient userServiceClient) {
         this.shiftRepository = shiftRepository;
         this.companyRepository = companyRepository;
+        this.userServiceClient = userServiceClient;
     }
 
     /**
@@ -39,6 +42,16 @@ public class ShiftService {
         Company company = companyRepository.findById(shift.getCompany().getId())
                 .orElseThrow(() -> new RuntimeException("公司不存在，ID: " + shift.getCompany().getId()));
 
+        // 验证用户是否存在（通过 Feign Client 调用 user-service）
+        try {
+            UserServiceClient.UserResponse user = userServiceClient.getUserById(shift.getUserId());
+            if (user == null || user.getId() == null) {
+                throw new RuntimeException("用户不存在，ID: " + shift.getUserId());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("无法验证用户是否存在，ID: " + shift.getUserId() + ", 错误: " + e.getMessage());
+        }
+
         // 验证时间逻辑
         if (shift.getStartTime().isAfter(shift.getStopTime()) || 
             shift.getStartTime().isEqual(shift.getStopTime())) {
@@ -47,7 +60,6 @@ public class ShiftService {
 
         // 设置关联关系
         shift.setCompany(company);
-        // userId 已经通过请求体设置，不需要验证（在微服务中，可以通过服务间通信验证）
 
         return shiftRepository.save(shift);
     }

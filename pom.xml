@@ -28,6 +28,8 @@
     </properties>
 
     <modules>
+        <module>eureka-server</module>
+        <module>config-server</module>
         <module>user-service</module>
         <module>shift-service</module>
         <module>api-gateway</module>

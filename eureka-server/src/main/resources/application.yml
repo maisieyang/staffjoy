@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: eureka-server
+
+# Eureka Server 配置
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    # 不向自己注册（单机模式）
+    register-with-eureka: false
+    # 不从自己获取服务列表（单机模式）
+    fetch-registry: false
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+
+# 服务器配置
+server:
+  port: 8761
+
+# Actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+# 日志配置
+logging:
+  level:
+    com.netflix.eureka: INFO
+    com.netflix.discovery: INFO
+

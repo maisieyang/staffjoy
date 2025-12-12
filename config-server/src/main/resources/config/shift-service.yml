@@ -1,19 +1,11 @@
+# Shift Service 配置
 spring:
   application:
-    name: user-service
-
-  # Eureka Client 配置
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true
-    instance-id: ${spring.application.name}:${server.port}
+    name: shift-service
 
   # 数据源配置
   datasource:
-    url: jdbc:h2:mem:userdb
+    url: jdbc:h2:mem:shiftdb
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -35,12 +27,21 @@ eureka:
 
 # 服务器配置
 server:
-  port: 8081
+  port: 8082
+
+# Eureka Client 配置
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
 
 # 日志配置
 logging:
   level:
-    com.staffjoy.user: DEBUG
+    com.staffjoy.shift: DEBUG
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
 

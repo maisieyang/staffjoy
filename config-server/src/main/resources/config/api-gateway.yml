@@ -1,3 +1,4 @@
+# API Gateway 配置
 spring:
   application:
     name: api-gateway
@@ -7,28 +8,25 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: true  # 启用服务发现定位器
-          lower-case-service-id: true  # 服务名转小写
+          enabled: true
+          lower-case-service-id: true
       routes:
-        # 用户服务路由（使用服务发现）
         - id: user-service
-          uri: lb://user-service  # lb:// 表示使用负载均衡，从 Eureka 获取服务实例
+          uri: lb://user-service
           predicates:
             - Path=/api/users/**
           filters:
-            - StripPrefix=0  # 不剥离前缀，保留 /api/users
+            - StripPrefix=0
 
-        # 排班服务路由 - 公司（使用服务发现）
         - id: shift-service-companies
-          uri: lb://shift-service  # 使用服务发现
+          uri: lb://shift-service
           predicates:
             - Path=/api/companies/**
           filters:
             - StripPrefix=0
 
-        # 排班服务路由 - 排班（使用服务发现）
         - id: shift-service-shifts
-          uri: lb://shift-service  # 使用服务发现
+          uri: lb://shift-service
           predicates:
             - Path=/api/shifts/**
           filters:
@@ -41,20 +39,6 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
   instance:
     prefer-ip-address: true
-
-      # 全局 CORS 配置
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowedOrigins: "*"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - OPTIONS
-            allowedHeaders: "*"
-            allowCredentials: false
 
 # 服务器配置
 server:

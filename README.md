@@ -21,10 +21,10 @@
 - [x] 拆分为排班服务（Shift Service）
 - [x] 创建 API 网关（API Gateway）
 
-### 阶段4：服务发现和配置（待完成）
-- [ ] 集成 Eureka 服务发现
-- [ ] 配置中心（Spring Cloud Config）
-- [ ] 服务间通信（Feign/RestTemplate）
+### 阶段4：服务发现和配置 ✅
+- [x] 集成 Eureka 服务发现
+- [x] 配置中心（Spring Cloud Config）
+- [x] 服务间通信（Feign Client）
 
 ### 阶段5：容器化（待完成）
 - [ ] Docker 化所有服务
@@ -44,14 +44,19 @@
 
 ### 📖 架构说明
 
-**想了解微服务架构的详细说明？** 请查看：[微服务架构说明文档](docs/MICROSERVICES_ARCHITECTURE.md)
+**想了解微服务架构的详细说明？** 请查看：
+- [微服务架构说明文档](docs/MICROSERVICES_ARCHITECTURE.md)
+- [服务注册发现与配置中心：第一性原理解析](docs/SERVICE_DISCOVERY_AND_CONFIG.md) ⭐
+- [HTTP vs RPC：跨微服务调用的第一性原理解析](docs/HTTP_VS_RPC.md) ⭐ **新增**
 
-该文档详细解释了：
+**文档内容：**
 - 项目结构和各模块关系
 - 服务间的协作方式
 - 启动顺序和步骤
 - 数据流示例
-- 关键概念理解
+- **服务注册发现和配置中心解决的问题（第一性原理）**
+- **实现方案对比和项目中的具体实现**
+- **HTTP 和 RPC 的本质区别和选择原则**
 
 ### 微服务架构
 
@@ -66,42 +71,81 @@ staffjoy/
 
 ### 运行应用
 
+**重要：启动顺序很重要！**
+
 #### 方式1：分别运行各个服务（推荐用于开发）
 
 ```bash
 # 1. 编译整个项目
 mvn clean install
 
-# 2. 启动用户服务
+# 2. 启动 Eureka Server（服务发现中心）- 必须先启动
+cd eureka-server
+mvn spring-boot:run
+# 服务将在 http://localhost:8761 启动
+# 等待看到 "Started EurekaServerApplication" 日志
+
+# 3. 启动 Config Server（配置中心，可选）- 新终端窗口
+cd config-server
+mvn spring-boot:run
+# 服务将在 http://localhost:8888 启动
+# 注意：Config Server 是可选的，默认使用本地配置
+
+# 4. 启动用户服务 - 新终端窗口
 cd user-service
 mvn spring-boot:run
 # 服务将在 http://localhost:8081 启动
+# 会自动注册到 Eureka Server
 
-# 3. 启动排班服务（新终端窗口）
+# 5. 启动排班服务 - 新终端窗口
 cd shift-service
 mvn spring-boot:run
 # 服务将在 http://localhost:8082 启动
+# 会自动注册到 Eureka Server
 
-# 4. 启动 API 网关（新终端窗口）
+# 6. 启动 API 网关 - 新终端窗口
 cd api-gateway
 mvn spring-boot:run
 # 网关将在 http://localhost:8080 启动
+# 会自动注册到 Eureka Server，并使用服务发现路由
 ```
 
 #### 方式2：使用 Maven 并行运行（需要多个终端）
 
 ```bash
 # 在项目根目录下，分别在不同终端运行：
+# 终端1：Eureka Server（必须先启动）
+mvn -pl eureka-server spring-boot:run
+
+# 终端2：Config Server（可选）
+mvn -pl config-server spring-boot:run
+
+# 终端3：User Service
 mvn -pl user-service spring-boot:run
+
+# 终端4：Shift Service
 mvn -pl shift-service spring-boot:run
+
+# 终端5：API Gateway
 mvn -pl api-gateway spring-boot:run
 ```
 
 ### 访问应用
 
+- **Eureka Server**: http://localhost:8761（服务注册中心，查看所有注册的服务）
+- **Config Server**: http://localhost:8888（配置中心，查看配置信息）
 - **API 网关**: http://localhost:8080（统一入口）
-- **用户服务**: http://localhost:8081
-- **排班服务**: http://localhost:8082
+- **用户服务**: http://localhost:8081（直接访问）
+- **排班服务**: http://localhost:8082（直接访问）
+
+#### 验证服务发现
+
+访问 Eureka Server 控制台：http://localhost:8761
+
+你应该能看到以下服务已注册：
+- `USER-SERVICE` (用户服务)
+- `SHIFT-SERVICE` (排班服务)
+- `API-GATEWAY` (API 网关)
 
 #### H2 数据库控制台
 
@@ -392,12 +436,51 @@ staffjoy/
 - **数据隔离**: 每个服务拥有独立的数据库
 - **跨服务引用**: 使用 ID 而非 JPA 关联
 
+**阶段4：服务发现和配置** ✅
+
+我们已经完成了：
+1. ✅ 创建 Eureka Server（eureka-server，端口 8761）
+   - 服务注册中心
+   - 所有微服务自动注册到这里
+   - 提供服务发现功能
+
+2. ✅ 集成 Eureka Client
+   - user-service、shift-service、api-gateway 都已集成
+   - 服务启动后自动注册到 Eureka Server
+   - API Gateway 使用服务发现动态路由（`lb://service-name`）
+
+3. ✅ 实现服务间通信（Feign Client）
+   - shift-service 使用 Feign Client 调用 user-service
+   - 验证用户是否存在（创建排班时）
+   - 自动从 Eureka 获取服务地址
+
+4. ✅ 创建 Config Server（config-server，端口 8888）
+   - 集中管理所有微服务的配置
+   - 支持从本地文件系统读取配置
+   - 各服务可配置为 Config Client（可选）
+
+**服务发现架构特点：**
+- **动态服务发现**: 服务通过服务名而非硬编码地址通信
+- **负载均衡**: Gateway 使用 `lb://` 前缀自动负载均衡
+- **服务注册**: 服务启动时自动注册，下线时自动注销
+- **健康检查**: Eureka 定期检查服务健康状态
+
+**服务间通信特点：**
+- **Feign Client**: 声明式 HTTP 客户端，简化服务调用
+- **自动服务发现**: Feign 自动从 Eureka 获取服务地址
+- **类型安全**: 使用接口定义，编译时检查
+
+**配置中心特点：**
+- **集中管理**: 所有配置集中在 Config Server
+- **环境隔离**: 支持不同环境（dev、test、prod）的配置
+- **动态刷新**: 支持配置热更新（需要配合 Spring Cloud Bus）
+
 ## 📖 下一步学习
 
-完成阶段3后，我们将进入阶段4：
-- 集成 Eureka 服务发现
-- 配置中心（Spring Cloud Config）
-- 服务间通信（Feign/RestTemplate）
+完成阶段4后，我们将进入阶段5：
+- Docker 化所有服务
+- Docker Compose 本地开发环境
+- 容器编排和部署
 
 ## 🤝 学习建议
 

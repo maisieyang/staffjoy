@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: config-server
+
+  # Config Server 配置
+  cloud:
+    config:
+      server:
+        # 使用本地文件系统作为配置源
+        native:
+          search-locations: classpath:/config
+        # 或者使用 Git（可选）
+        # git:
+        #   uri: file://${user.home}/config-repo
+        #   default-label: main
+
+# Eureka Client 配置
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# 服务器配置
+server:
+  port: 8888
+
+# Actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,refresh
+
+# 日志配置
+logging:
+  level:
+    org.springframework.cloud.config: DEBUG
+
