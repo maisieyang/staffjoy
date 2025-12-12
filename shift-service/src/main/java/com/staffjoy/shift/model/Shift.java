@@ -1,5 +1,6 @@
 package com.staffjoy.shift.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -35,10 +36,12 @@ public class Shift {
     /**
      * 多对一关系：多个排班属于一个公司
      * 在同一服务内，可以保留 JPA 关联
+     * 使用 @JsonIgnoreProperties 避免循环引用和Hibernate代理序列化问题
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", nullable = false)
     @NotNull(message = "公司不能为空")
+    @JsonIgnoreProperties({"shifts", "hibernateLazyInitializer", "handler"})
     private Company company;
 
     @Column(name = "start_time", nullable = false)

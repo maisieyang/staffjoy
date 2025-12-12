@@ -1,5 +1,6 @@
 package com.staffjoy.shift.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -53,8 +54,10 @@ public class Company {
     /**
      * 一对多关系：一个公司有多个排班
      * 在同一服务内，可以保留 JPA 关联
+     * 使用 @JsonIgnoreProperties 避免循环引用
      */
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"company"})
     private List<Shift> shifts = new ArrayList<>();
 
     @PrePersist
