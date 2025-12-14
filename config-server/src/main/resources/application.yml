@@ -1,6 +1,10 @@
 spring:
   application:
     name: config-server
+  
+  # 激活 native profile，使用本地文件系统作为配置源
+  profiles:
+    active: native
 
   # Config Server 配置
   cloud:

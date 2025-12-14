@@ -26,9 +26,9 @@
 - [x] 配置中心（Spring Cloud Config）
 - [x] 服务间通信（Feign Client）
 
-### 阶段5：容器化（待完成）
-- [ ] Docker 化所有服务
-- [ ] Docker Compose 本地开发环境
+### 阶段5：容器化 ✅
+- [x] Docker 化所有服务
+- [x] Docker Compose 本地开发环境
 
 ### 阶段6：Kubernetes 部署（待完成）
 - [ ] K8s Deployment 配置
@@ -41,13 +41,15 @@
 ### 前置要求
 - JDK 21 或更高版本
 - Maven 3.8 或更高版本
+- Docker 和 Docker Compose（用于容器化部署）
 
 ### 📖 架构说明
 
 **想了解微服务架构的详细说明？** 请查看：
 - [微服务架构说明文档](docs/MICROSERVICES_ARCHITECTURE.md)
 - [服务注册发现与配置中心：第一性原理解析](docs/SERVICE_DISCOVERY_AND_CONFIG.md) ⭐
-- [HTTP vs RPC：跨微服务调用的第一性原理解析](docs/HTTP_VS_RPC.md) ⭐ **新增**
+- [HTTP vs RPC：跨微服务调用的第一性原理解析](docs/HTTP_VS_RPC.md) ⭐
+- [Docker 容器化指南](docs/DOCKER_GUIDE.md) 🐳 **新增**
 
 **文档内容：**
 - 项目结构和各模块关系
@@ -57,6 +59,7 @@
 - **服务注册发现和配置中心解决的问题（第一性原理）**
 - **实现方案对比和项目中的具体实现**
 - **HTTP 和 RPC 的本质区别和选择原则**
+- **Docker 容器化实践和最佳实践**
 
 ### 微服务架构
 
@@ -73,7 +76,48 @@ staffjoy/
 
 **重要：启动顺序很重要！**
 
-#### 方式1：分别运行各个服务（推荐用于开发）
+#### 方式1：使用 Docker Compose（推荐，最简单）🐳
+
+这是最简单的方式，一键启动所有服务：
+
+```bash
+# 1. 确保 Docker 和 Docker Compose 已安装并运行
+docker --version
+docker-compose --version
+
+# 2. 在项目根目录下构建并启动所有服务
+docker-compose up --build
+
+# 或者后台运行
+docker-compose up -d --build
+
+# 3. 查看服务状态
+docker-compose ps
+
+# 4. 查看日志
+docker-compose logs -f [service-name]  # 例如：docker-compose logs -f user-service
+
+# 5. 停止所有服务
+docker-compose down
+
+# 6. 停止并删除所有数据（包括卷）
+docker-compose down -v
+```
+
+**Docker Compose 会自动处理：**
+- ✅ 服务启动顺序（Eureka → Config → Services → Gateway）
+- ✅ 服务间网络通信
+- ✅ 健康检查
+- ✅ 服务发现配置
+
+**访问地址（与本地运行相同）：**
+- Eureka Server: http://localhost:8761
+- Config Server: http://localhost:8888
+- API Gateway: http://localhost:8080
+- User Service: http://localhost:8081
+- Shift Service: http://localhost:8082
+
+#### 方式2：分别运行各个服务（推荐用于开发）
 
 ```bash
 # 1. 编译整个项目
@@ -110,7 +154,7 @@ mvn spring-boot:run
 # 会自动注册到 Eureka Server，并使用服务发现路由
 ```
 
-#### 方式2：使用 Maven 并行运行（需要多个终端）
+#### 方式3：使用 Maven 并行运行（需要多个终端）
 
 ```bash
 # 在项目根目录下，分别在不同终端运行：
@@ -475,12 +519,63 @@ staffjoy/
 - **环境隔离**: 支持不同环境（dev、test、prod）的配置
 - **动态刷新**: 支持配置热更新（需要配合 Spring Cloud Bus）
 
+### 阶段5：容器化 ✅
+
+我们已经完成了：
+1. ✅ 为所有服务创建 Dockerfile
+   - 使用多阶段构建（构建阶段 + 运行阶段）
+   - 基于 Eclipse Temurin 21 JRE（Alpine 镜像，体积小）
+   - 非 root 用户运行（安全最佳实践）
+
+2. ✅ 创建 Docker Compose 配置
+   - 一键启动所有服务
+   - 自动处理服务依赖和启动顺序
+   - 配置服务间网络通信
+   - 健康检查机制
+
+3. ✅ 容器化架构特点
+   - **隔离性**: 每个服务运行在独立容器中
+   - **可移植性**: 一次构建，到处运行
+   - **可扩展性**: 轻松扩展服务实例数量
+   - **环境一致性**: 开发、测试、生产环境一致
+
+**Docker 文件结构：**
+```
+staffjoy/
+├── eureka-server/Dockerfile
+├── config-server/Dockerfile
+├── user-service/Dockerfile
+├── shift-service/Dockerfile
+├── api-gateway/Dockerfile
+├── docker-compose.yml          # Docker Compose 编排文件
+└── .dockerignore               # Docker 构建忽略文件
+```
+
+**使用 Docker Compose 启动：**
+```bash
+# 构建并启动所有服务
+docker-compose up --build
+
+# 后台运行
+docker-compose up -d --build
+
+# 查看服务状态
+docker-compose ps
+
+# 查看日志
+docker-compose logs -f [service-name]
+
+# 停止所有服务
+docker-compose down
+```
+
 ## 📖 下一步学习
 
-完成阶段4后，我们将进入阶段5：
-- Docker 化所有服务
-- Docker Compose 本地开发环境
-- 容器编排和部署
+完成阶段5后，我们将进入阶段6：
+- Kubernetes Deployment 配置
+- Service 和 Ingress 配置
+- ConfigMap 和 Secret
+- 生产环境部署
 
 ## 🤝 学习建议
 

@@ -1,9 +1,17 @@
 spring:
   application:
     name: api-gateway
-
-  # Spring Cloud Gateway 配置
+  
+  # Config Server 配置（Spring Boot 3.x 需要）
+  config:
+    import: optional:configserver:http://config-server:8888
   cloud:
+    config:
+      enabled: false  # 暂时禁用 Config Server，使用本地配置
+      import-check:
+        enabled: false  # 禁用 import 检查
+    
+    # Spring Cloud Gateway 配置
     gateway:
       discovery:
         locator:
@@ -33,15 +41,7 @@ spring:
             - Path=/api/shifts/**
           filters:
             - StripPrefix=0
-
-# Eureka Client 配置
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true
-
+      
       # 全局 CORS 配置
       globalcors:
         cors-configurations:
@@ -55,6 +55,14 @@ eureka:
               - OPTIONS
             allowedHeaders: "*"
             allowCredentials: false
+
+# Eureka Client 配置
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
 
 # 服务器配置
 server:

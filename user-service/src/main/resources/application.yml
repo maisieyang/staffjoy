@@ -1,15 +1,15 @@
 spring:
   application:
     name: user-service
-
-  # Eureka Client 配置
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true
-    instance-id: ${spring.application.name}:${server.port}
+  
+  # Config Server 配置（Spring Boot 3.x 需要）
+  config:
+    import: optional:configserver:http://config-server:8888
+  cloud:
+    config:
+      enabled: false  # 暂时禁用 Config Server，使用本地配置
+      import-check:
+        enabled: false  # 禁用 import 检查
 
   # 数据源配置
   datasource:
@@ -33,9 +33,25 @@ eureka:
       enabled: true
       path: /h2-console
 
+# Eureka Client 配置
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
 # 服务器配置
 server:
   port: 8081
+
+# Actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
 
 # 日志配置
 logging:

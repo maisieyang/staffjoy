@@ -2,7 +2,7 @@ package com.staffjoy.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * API 网关主应用类
@@ -11,7 +11,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
  * 已集成 Eureka Client，使用服务发现动态路由
  */
 @SpringBootApplication
-@EnableEurekaClient
+@EnableDiscoveryClient
 public class ApiGatewayApplication {
     public static void main(String[] args) {
         SpringApplication.run(ApiGatewayApplication.class, args);
