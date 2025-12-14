@@ -1,0 +1,80 @@
+# 生产环境配置（PostgreSQL）
+spring:
+  application:
+    name: shift-service
+  
+  # PostgreSQL 数据源配置
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?currentSchema=${DB_SCHEMA}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: validate  # 生产环境使用 validate，不使用 update（由 Flyway 管理表结构）
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false  # 生产环境关闭 SQL 日志
+    properties:
+      hibernate:
+        default_schema: ${DB_SCHEMA}
+        format_sql: false
+        jdbc:
+          time_zone: Asia/Shanghai
+
+  # Flyway 数据库迁移配置
+  flyway:
+    enabled: true
+    baseline-on-migrate: true  # 如果数据库已有表，自动创建基线
+    validate-on-migrate: true  # 迁移前验证
+    locations: classpath:db/migration
+    schemas: ${DB_SCHEMA}  # 指定 schema
+    table: flyway_schema_history  # Flyway 历史表名称
+
+  # Config Server 配置
+  config:
+    import: optional:configserver:http://config-server:8888
+  cloud:
+    config:
+      enabled: false
+      import-check:
+        enabled: false
+
+# Eureka Client 配置
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+# 服务器配置
+server:
+  port: 8082
+
+# Actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  health:
+    db:
+      enabled: true
+
+# 日志配置
+logging:
+  level:
+    com.staffjoy.shift: INFO
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN  # 生产环境关闭 SQL 日志
+
