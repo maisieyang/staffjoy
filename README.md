@@ -30,11 +30,11 @@
 - [x] Docker 化所有服务
 - [x] Docker Compose 本地开发环境
 
-### 阶段6：Kubernetes 部署（待完成）
-- [ ] K8s Deployment 配置
-- [ ] Service 和 Ingress 配置
-- [ ] ConfigMap 和 Secret
-- [ ] 生产环境部署
+### 阶段6：Kubernetes 部署 ✅
+- [x] K8s Deployment 配置
+- [x] Service 和 Ingress 配置
+- [x] ConfigMap 和 Secret
+- [x] 生产环境部署配置
 
 ## 🚀 快速开始
 
@@ -49,7 +49,10 @@
 - [微服务架构说明文档](docs/MICROSERVICES_ARCHITECTURE.md)
 - [服务注册发现与配置中心：第一性原理解析](docs/SERVICE_DISCOVERY_AND_CONFIG.md) ⭐
 - [HTTP vs RPC：跨微服务调用的第一性原理解析](docs/HTTP_VS_RPC.md) ⭐
-- [Docker 容器化指南](docs/DOCKER_GUIDE.md) 🐳 **新增**
+- [Docker 容器化指南](docs/DOCKER_GUIDE.md) 🐳
+- [Kubernetes 部署指南（通用）](k8s/README.md) ☸️
+- [阿里云 ACK 部署指南](k8s/alibaba-cloud/README.md) ☁️
+- [部署方式对比说明](k8s/DEPLOYMENT_COMPARISON.md) 📊 **新增**
 
 **文档内容：**
 - 项目结构和各模块关系
@@ -60,6 +63,7 @@
 - **实现方案对比和项目中的具体实现**
 - **HTTP 和 RPC 的本质区别和选择原则**
 - **Docker 容器化实践和最佳实践**
+- **Kubernetes 部署配置和生产环境最佳实践**
 
 ### 微服务架构
 
@@ -569,13 +573,99 @@ docker-compose logs -f [service-name]
 docker-compose down
 ```
 
+### 阶段6：Kubernetes 部署 ✅
+
+我们已经完成了：
+1. ✅ 创建 Kubernetes Deployment 配置
+   - 为所有服务创建了 Deployment 配置
+   - 配置了资源限制、健康检查、副本数等
+   - 支持多副本部署以实现高可用
+
+2. ✅ 创建 Service 和 Ingress 配置
+   - 为所有服务创建了 Service（ClusterIP）
+   - API Gateway 使用 LoadBalancer 类型
+   - 配置了 Ingress 用于外部访问
+
+3. ✅ 创建 ConfigMap 和 Secret
+   - ConfigMap 存储非敏感配置
+   - Secret 存储敏感信息（数据库密码等）
+   - 支持配置与代码分离
+
+4. ✅ 生产环境部署配置
+   - 提供了完整的部署文档和脚本
+   - 包含高可用、监控、安全等最佳实践建议
+
+**Kubernetes 文件结构：**
+```
+k8s/
+├── deployments/          # Deployment 配置
+│   ├── eureka-server-deployment.yaml
+│   ├── config-server-deployment.yaml
+│   ├── user-service-deployment.yaml
+│   ├── shift-service-deployment.yaml
+│   └── api-gateway-deployment.yaml
+├── services/            # Service 配置
+│   ├── eureka-server-service.yaml
+│   ├── config-server-service.yaml
+│   ├── user-service-service.yaml
+│   ├── shift-service-service.yaml
+│   └── api-gateway-service.yaml
+├── configmaps/          # ConfigMap 配置
+│   ├── eureka-config.yaml
+│   ├── user-service-config.yaml
+│   ├── shift-service-config.yaml
+│   └── api-gateway-config.yaml
+├── secrets/             # Secret 配置
+│   └── database-secret.yaml
+├── ingress/             # Ingress 配置
+│   └── api-ingress.yaml
+├── deploy.sh            # 一键部署脚本
+└── README.md            # Kubernetes 部署文档
+```
+
+**使用 Kubernetes 部署：**
+```bash
+# 方式1：使用部署脚本（推荐）
+cd k8s
+./deploy.sh
+
+# 方式2：手动部署
+# 1. 部署 Eureka Server
+kubectl apply -f deployments/eureka-server-deployment.yaml
+kubectl apply -f services/eureka-server-service.yaml
+
+# 2. 部署其他服务（按顺序）
+kubectl apply -f deployments/config-server-deployment.yaml
+kubectl apply -f deployments/user-service-deployment.yaml
+kubectl apply -f deployments/shift-service-deployment.yaml
+kubectl apply -f deployments/api-gateway-deployment.yaml
+
+# 3. 部署 Ingress
+kubectl apply -f ingress/api-ingress.yaml
+
+# 查看部署状态
+kubectl get pods
+kubectl get services
+```
+
+**Kubernetes 部署特点：**
+- **高可用性**: 支持多副本部署，自动故障恢复
+- **自动扩缩容**: 可根据负载自动调整 Pod 数量
+- **服务发现**: 通过 Service 实现服务间通信
+- **配置管理**: ConfigMap 和 Secret 实现配置与代码分离
+- **负载均衡**: Service 自动实现负载均衡
+- **滚动更新**: 支持零停机更新
+
+详细部署指南请参考：[Kubernetes 部署文档](k8s/README.md)
+
 ## 📖 下一步学习
 
-完成阶段5后，我们将进入阶段6：
-- Kubernetes Deployment 配置
-- Service 和 Ingress 配置
-- ConfigMap 和 Secret
-- 生产环境部署
+完成阶段6后，可以考虑以下进阶内容：
+- 监控和日志（Prometheus + Grafana）
+- 分布式追踪（Jaeger、Zipkin）
+- CI/CD 流水线（Jenkins、GitLab CI、GitHub Actions）
+- 服务网格（Istio、Linkerd）
+- 云原生数据库（云数据库服务）
 
 ## 🤝 学习建议
 

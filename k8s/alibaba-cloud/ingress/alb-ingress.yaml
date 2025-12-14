@@ -1,0 +1,68 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ingress
+  namespace: default
+  annotations:
+    # 阿里云 ALB Ingress Controller 注解
+    alb.ingress.kubernetes.io/name: staffjoy-api-ingress
+    alb.ingress.kubernetes.io/loadbalancer-spec: "slb.s2.small"  # 负载均衡规格，根据需求调整
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    # 如果需要 HTTPS，取消注释以下配置
+    # alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    # alb.ingress.kubernetes.io/certificate-id: "your-certificate-id"  # SSL 证书 ID
+    # 健康检查配置
+    alb.ingress.kubernetes.io/healthcheck-enabled: "true"
+    alb.ingress.kubernetes.io/healthcheck-path: "/actuator/health"
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "5"
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "3"
+    alb.ingress.kubernetes.io/healthy-threshold-count: "2"
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: "3"
+    # 会话保持（可选）
+    # alb.ingress.kubernetes.io/session-stick: "on"
+    # alb.ingress.kubernetes.io/session-stick-type: "server"
+    # alb.ingress.kubernetes.io/session-stick-timeout: "3600"
+spec:
+  ingressClassName: alb  # 使用阿里云 ALB Ingress Controller
+  rules:
+  # 生产环境请配置实际域名
+  - host: api.staffjoy.example.com  # ⚠️ 请修改为实际域名
+    http:
+      paths:
+      # API Gateway - 统一入口
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 8080
+      # Eureka Dashboard（可选，生产环境建议移除或限制访问）
+      - path: /eureka
+        pathType: Prefix
+        backend:
+          service:
+            name: eureka-server
+            port:
+              number: 8761
+  # 如果需要 HTTPS，取消注释以下配置
+  # tls:
+  # - hosts:
+  #   - api.staffjoy.example.com
+  #   secretName: staffjoy-tls-secret
+
+---
+# 说明：
+# 1. 请将 api.staffjoy.example.com 替换为实际域名
+# 2. 如需 HTTPS，请：
+#    - 在阿里云 SSL 证书服务中申请证书
+#    - 将证书 ID 配置到 alb.ingress.kubernetes.io/certificate-id
+#    - 取消注释 tls 配置
+# 3. 负载均衡规格说明：
+#    - slb.s1.small: 小型（适合测试）
+#    - slb.s2.small: 小型（推荐）
+#    - slb.s2.medium: 中型（适合生产）
+#    - slb.s3.large: 大型（高负载）
+

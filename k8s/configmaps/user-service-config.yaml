@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-service-config
+  labels:
+    app: user-service
+data:
+  # User Service 配置（示例，实际配置建议通过 Config Server 管理）
+  application.yml: |
+    spring:
+      application:
+        name: user-service
+      
+      config:
+        import: optional:configserver:http://config-server:8888
+      cloud:
+        config:
+          enabled: false
+          import-check:
+            enabled: false
+      
+      datasource:
+        url: jdbc:h2:mem:userdb
+        driver-class-name: org.h2.Driver
+        username: sa
+        password: ""
+      
+      jpa:
+        hibernate:
+          ddl-auto: update
+        show-sql: false  # 生产环境关闭 SQL 日志
+    
+    eureka:
+      client:
+        service-url:
+          defaultZone: http://eureka-server:8761/eureka/
+      instance:
+        prefer-ip-address: true
+    
+    server:
+      port: 8081
+    
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health,info
+

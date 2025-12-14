@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ingress
+  annotations:
+    # 如果使用 Nginx Ingress Controller
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # 如果使用其他 Ingress Controller，请相应调整注解
+spec:
+  ingressClassName: nginx  # 根据实际使用的 Ingress Controller 调整
+  rules:
+  # 生产环境建议配置域名和 TLS
+  - host: api.staffjoy.local  # 开发环境使用，生产环境替换为实际域名
+    http:
+      paths:
+      # API Gateway - 统一入口
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 8080
+      # Eureka Dashboard（可选，生产环境建议移除或限制访问）
+      - path: /eureka
+        pathType: Prefix
+        backend:
+          service:
+            name: eureka-server
+            port:
+              number: 8761
+  # 生产环境取消注释以下配置以启用 TLS
+  # tls:
+  # - hosts:
+  #   - api.staffjoy.local
+  #   secretName: staffjoy-tls-secret
+
