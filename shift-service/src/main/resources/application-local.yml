@@ -1,0 +1,77 @@
+# 本地开发环境配置（PostgreSQL）
+spring:
+  application:
+    name: shift-service
+  
+  # PostgreSQL 数据源配置（本地 Docker）
+  datasource:
+    url: jdbc:postgresql://localhost:5433/staffjoy?currentSchema=shift_schema
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: validate  # 使用 Flyway 管理表结构
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true  # 开发环境显示 SQL
+    properties:
+      hibernate:
+        default_schema: shift_schema
+        format_sql: true
+        jdbc:
+          time_zone: Asia/Shanghai
+
+  # Flyway 数据库迁移配置
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    locations: classpath:db/migration
+    schemas: shift_schema
+
+  # Config Server 配置
+  config:
+    import: optional:configserver:http://config-server:8888
+  cloud:
+    config:
+      enabled: false
+      import-check:
+        enabled: false
+
+# Eureka Client 配置（本地开发可以禁用）
+eureka:
+  client:
+    enabled: false  # 本地开发可以禁用 Eureka
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# 服务器配置
+server:
+  port: 8082
+
+# Actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  health:
+    db:
+      enabled: true
+
+# 日志配置
+logging:
+  level:
+    com.staffjoy.shift: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
